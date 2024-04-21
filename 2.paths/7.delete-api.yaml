@@ -1,0 +1,269 @@
+openapi: 3.0.3
+info:
+  title: YugeshShop Products API Specifiation
+  description: |
+    Using these apis, consumer can get the details of all the apis available and how to use it
+  termsOfService: https://yugeshshop.com/terms
+  contact:
+    name: API support
+    url: https://yugeshshop.com/contact
+    email: support@yugeshshop.com
+  license:
+    name: YugeshShop License 2.0
+    url: https://www.yugeshshop.com/licenses/LICENSE-2.0.html
+  version: 0.0.1
+servers:
+  - url: https://dev.yugeshshop.com/v1
+    description: This is a development server
+  - url: https://stage.yugeshshop.com/v1
+    description: This is a staging server
+  - url: https://prod.yugeshshop.com/v1
+    description: This is a production server
+  - url: https://{username}.server.com:{port}/{version}
+    variables:
+      username:
+        default: test
+        description: This value is assigned by the service provider.
+      port:
+        enum:
+          - "8443"
+          - "443"
+        default: "8443"
+      version:
+        default: v1
+paths:
+  /categories:
+    get:
+      summary: List all categories
+      description: Returns the list of all categories suported by YugeshShop
+      # added parameters -- query paramter in this case
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 1000
+          example: 101
+          required: false
+      responses:
+        200:
+          description: List of all categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    categoryId:
+                      type: integer
+                    name:
+                      type: string
+
+  /categories/{categoryId}:
+    get:
+      summary: Get a category
+      description:
+        Returns the category of the given category id
+        # added parameters -- path paramter in this case
+      parameters:
+        - name: categoryId
+          in: path
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 1000
+          example: 101
+          required: true
+      responses:
+        200:
+          description: List of all categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categoryId:
+                    type: integer
+                  name:
+                    type: string
+
+  # added products and products/{productId} apis
+  /products:
+    get:
+      summary: List all products
+      description: |
+        Returns the list of all products 
+        suported by YugeshShop
+      # added parameters -- query paramter in this case
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 1000
+          example: 101
+          required: false
+      responses:
+        200:
+          description: A list of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    productId:
+                      type: integer
+                    name:
+                      type: string
+                    price:
+                      type: number
+                    categoryName:
+                      type: string
+                    quantity:
+                      type: integer
+  /products/{productId}:
+    get:
+      summary: Gives one product
+      description: Returns the prodcut with given product id
+      # added parameters -- path paramter in this case
+      parameters:
+        - name: productId
+          in: path
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 100000
+          example: 103
+          required: true
+      responses:
+        200:
+          description: A single product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  productId:
+                    type: integer
+                  name:
+                    type: string
+                  price:
+                    type: number
+                  categoryName:
+                    type: string
+                  quantity:
+                    type: integer
+  # added post api of order
+  /order:
+    post:
+      summary: create order
+      description: |
+        Post order details to YugeshShop to process
+        and ship the product
+      # newly introduced request body
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      productId:
+                        type: integer
+                      name:
+                        type: string
+                      price:
+                        type: number
+                      categoryName:
+                        type: string
+                      quantity:
+                        type: integer
+                address:
+                  type: object
+                  properties:
+                    addressLine1:
+                      type: string
+                    addressLine2:
+                      type: string
+                    city:
+                      type: string
+                    state:
+                      type: string
+                    zipcode:
+                      type: string
+      responses:
+        201:
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+    put:
+      summary: update order
+      description: |
+        update order details to YugeshShop to process
+        and ship the product
+      # newly introduced request body
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderId:
+                  type: integer
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      productId:
+                        type: integer
+                      name:
+                        type: string
+                      price:
+                        type: number
+                      categoryName:
+                        type: string
+                      quantity:
+                        type: integer
+                address:
+                  type: object
+                  properties:
+                    addressLine1:
+                      type: string
+                    addressLine2:
+                      type: string
+                    city:
+                      type: string
+                    state:
+                      type: string
+                    zipcode:
+                      type: string
+      responses:
+        200:
+          description: Order updated successfully
+    delete:
+      summary: delete order
+      description: delete order id
+      parameters:
+        - name: orderId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Order deleted successfully
