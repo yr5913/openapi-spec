@@ -1,0 +1,16 @@
+openapi: 3.0.3
+info:
+  title: YugeshShop Products API Specifiation
+  description: |
+    Using these apis, consumer can get the details of all the apis available and how to use it
+  termsOfService: https://yugeshshop.com/terms
+  contact:
+    name: API support
+    url: https://yugeshshop.com/contact
+    email: support@yugeshshop.com
+  license:
+    name: YugeshShop License 2.0
+    url: https://www.yugeshshop.com/licenses/LICENSE-2.0.html
+  version: 0.0.1
+
+paths: {}
