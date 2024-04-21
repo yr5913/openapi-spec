@@ -1,0 +1,62 @@
+openapi: 3.0.3
+info:
+  title: YugeshShop Products API Specifiation
+  description: |
+    Using these apis, consumer can get the details of all the apis available and how to use it
+  termsOfService: https://yugeshshop.com/terms
+  contact:
+    name: API support
+    url: https://yugeshshop.com/contact
+    email: support@yugeshshop.com
+  license:
+    name: YugeshShop License 2.0
+    url: https://www.yugeshshop.com/licenses/LICENSE-2.0.html
+  version: 0.0.1
+servers:
+  - url: https://dev.yugeshshop.com/v1
+    description: This is a development server
+  - url: https://stage.yugeshshop.com/v1
+    description: This is a staging server
+  - url: https://prod.yugeshshop.com/v1
+    description: This is a production server
+  - url: https://{username}.server.com:{port}/{version}
+    variables:
+      username:
+        default: test
+        description: This value is assigned by the service provider.
+      port:
+        enum:
+          - "8443"
+          - "443"
+        default: "8443"
+      version:
+        default: v1
+paths:
+  /categories:
+    get:
+      summary: List all categories
+      description: Returns the list of all categories suported by YugeshShop
+      # added parameters -- query paramter in this case
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 1000
+          example: 101
+          required: false
+      responses:
+        200:
+          description: List of all categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    categoryId:
+                      type: integer
+                    name:
+                      type: string
