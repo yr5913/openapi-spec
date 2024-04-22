@@ -1,0 +1,505 @@
+openapi: 3.0.3
+info:
+  title: YugeshShop Products API Specifiation
+  description: |
+    # About Us
+    ***YugeshShop*** is a product selling company.
+    Any website can list our products bu using our _APIs_.
+    Shipping & logistics wlill be handled by us. 
+    We will also provide `Affiliate Commision` for any product sold.
+    # Categories supported
+      - Mobiles
+        - Apple
+        - Samsung
+      - Laptops
+      - Telivisions
+      - Headphones
+  termsOfService: https://yugeshshop.com/terms
+  x-custom-info:
+    comment: below are the authors of these apis
+    developers:
+      - name: John Don
+        email: john@don.com
+      - name: David Gong
+        email: davinggong@gong.com
+
+  contact:
+    name: API support
+    url: https://yugeshshop.com/contact
+    email: support@yugeshshop.com
+  license:
+    name: YugeshShop License 2.0
+    url: https://www.yugeshshop.com/licenses/LICENSE-2.0.html
+  version: 0.0.1
+servers:
+  - url: https://dev.yugeshshop.com/v1
+    description: This is a development server
+  - url: https://stage.yugeshshop.com/v1
+    description: This is a staging server
+  - url: https://prod.yugeshshop.com/v1
+    description: This is a production server
+  - url: https://{username}.server.com:{port}/{version}
+    variables:
+      username:
+        default: test
+        description: This value is assigned by the service provider.
+      port:
+        enum:
+          - "8443"
+          - "443"
+        default: "8443"
+      version:
+        default: v1
+tags:
+  - name: Categories
+    description: APIs related to categories
+  - name: Products
+    description: APIs related to products
+  - name: Orders
+    description: APIs realted to orders
+
+paths:
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: List all
+      operationId: getAllCategories
+      description: Returns the list of all categories suported by YugeshShop
+      # added parameters -- query paramter in this case
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 1000
+          examples:
+            mobiles:
+              value: 102
+              summary: category id for mobiles
+            laptops:
+              value: 103
+            headphones:
+              value: 104
+            telivisions:
+              value: 105
+          required: false
+      responses:
+        200:
+          description: List of all categories
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+              examples:
+                all-categories-data:
+                  summary: Categories example data
+                  value:
+                    - categoryId: 102
+                      name: Mobiles
+                    - categoryId: 103
+                      name: Laptops
+                    - categoryId: 104
+                      name: Headphones
+                    - categoryId: 105
+                      name: Telivisions
+                single-category-data:
+                  summary: single category data
+                  value:
+                    - categoryId: 105
+                      name: Telivisions
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /categories/{categoryId}:
+    get:
+      tags:
+        - Categories
+      summary: Get a category
+      description: Returns the category of the given category id
+      operationId:
+        getCategory
+        # added parameters -- path paramter in this case
+      parameters:
+        - name: categoryId
+          in: path
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 1000
+          example: 101
+          required: true
+      responses:
+        200:
+          description: List of all categories
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  # added products and products/{productId} apis
+  /products:
+    get:
+      tags:
+        - Products
+      summary: List all products
+      description: |
+        Returns the list of all products 
+        suported by YugeshShop
+      operationId: getAllProductDetails
+      # added parameters -- query paramter in this case
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 1000
+          example: 101
+          required: false
+      responses:
+        200:
+          description: A list of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  /products/{productId}:
+    get:
+      tags:
+        - Products
+      summary: Gives one product
+      description: Returns the prodcut with given product id
+      operationId: getProductDetails
+      # added parameters -- path paramter in this case
+      parameters:
+        - name: productId
+          in: path
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 100000
+          example: 103
+          required: true
+      responses:
+        200:
+          description: A single product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  # added post api of order
+  /order:
+    post:
+      tags:
+        - Orders
+      summary: create order
+      description: |
+        create an order
+      operationId: createOrder
+      # newly introduced request body
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Product"
+                address:
+                  $ref: "#/components/schemas/Address"
+      responses:
+        201:
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+          links:
+            GetOrderByOrderId:
+              $ref: "#/components/links/GetOrderByOrderId"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      tags:
+        - Orders
+      summary: update order
+      description: |
+        update order details to YugeshShop to process
+        and ship the product
+      operationId: updateOrder
+      # newly introduced request body
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderId:
+                  type: integer
+                products:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Product"
+                address:
+                  $ref: "#/components/schemas/Address"
+      responses:
+        200:
+          description: Order updated successfully
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags:
+        - Orders
+      summary: delete order
+      description: delete order id
+      operationId: deleteOrder
+      parameters:
+        - $ref: "#/components/parameters/orderIdQueryParam"
+      responses:
+        204:
+          description: Order deleted successfully
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    # get order apis added
+    get:
+      tags:
+        - Orders
+      summary: get order details
+      description: |
+        Give the orders details of the given order
+      operationId: getOrderDetails
+      parameters:
+        # reference the parameters
+        - $ref: "#/components/parameters/orderIdQueryParam"
+      responses:
+        200:
+          description: return the order detials successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+                  products:
+                    $ref: "#/components/schemas/Product"
+                  address:
+                    $ref: "#/components/schemas/Address"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  /orders/{orderId}:
+    get:
+      tags:
+        - Orders
+      summary: Get Order Details
+      description: Get order details from EazyShop
+      operationId: getOrderDetailsUsingPathParam
+      deprecated: true
+      parameters:
+        - $ref: "#/components/parameters/orderIdPathParam"
+      responses:
+        "200":
+          description: Fetch Order details successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+                  products:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+                  address:
+                    $ref: "#/components/schemas/Address"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /oneOfOrder:
+    post:
+      tags:
+        - Order
+      summary: Insert OneOf the Order Details
+      description: Insert OneOf the order Details into Yugeshshop
+      operationId: getOneOfOrder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: object
+                  oneOf:
+                    - $ref: "#/components/schemas/Laptop"
+                    - $ref: "#/components/schemas/Mobile"
+                address:
+                  $ref: "#/components/schemas/Address"
+              required:
+                - products
+                - address
+      responses:
+        200:
+          description: Order created
+  /anyOfOrder:
+    get:
+      tags:
+        - Orders
+      summary: Get Order Details
+      description: Get Order Details based on Order ID
+      operationId: getAnyOfOrder
+      parameters:
+        - $ref: "#/components/parameters/orderIdQueryParam"
+        - name: fetchType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - summary
+              - details
+          description: >
+            Fetch Type:
+             * `summary` - Will provide Order Summary
+             * `details` - Will provide Order Summary & Order Address
+      responses:
+        "200":
+          description: Return product details
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/OrderSummary"
+                  - $ref: "#/components/schemas/OrderAddress"
+
+# reusable components
+components:
+  # reusable parameters
+  parameters:
+    orderIdQueryParam:
+      name: orderId
+      in: query
+      required: true
+      schema:
+        type: integer
+    orderIdPathParam:
+      name: orderId
+      in: path
+      required: true
+      schema:
+        type: integer
+  # reusable schema
+  schemas:
+    Address:
+      type: object
+      properties:
+        addressLine1:
+          type: string
+        addressLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+          enum:
+            - NY
+            - CA
+            - TX
+            - NH
+            - AZ
+        zipcode:
+          type: string
+        isOfficeAddress:
+          type: boolean
+      required: [addressLine1, city, state, zipcode]
+    Product:
+      type: object
+      properties:
+        productId:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+          format: double
+        categoryName:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+        releaseDate:
+          type: string
+          format: date
+          readOnly: true
+    Mobile:
+      allOf:
+        - $ref: "#/components/schemas/Product"
+        - type: object
+          properties:
+            networkType:
+              type: string
+              enum:
+                - 4G
+                - 5G
+          required: [networkType]
+    Laptop:
+      allOf:
+        - $ref: "#/components/schemas/Product"
+        - type: object
+          properties:
+            ram:
+              type: string
+              enum:
+                - 4GB
+                - 8GB
+                - 16GB
+          required: [ram]
+    Category:
+      type: object
+      properties:
+        categoryId:
+          type: integer
+        name:
+          type: string
+    OrderSummary:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+    OrderAddress:
+      type: object
+      properties:
+        address:
+          $ref: "#/components/schemas/Address"
+  # reusable responses
+  responses:
+    InternalServerError:
+      description: |
+        An error occcured while processing request
+        Please contact api support
+  # links
+  links:
+    GetOrderByOrderId:
+      description: >
+        The order id created during order creation  
+        should be used as input parameter in get `/orders` api.
+      operationId: getOrderDetails
+      parameters:
+        orderId: "$response.body#/orderId"
